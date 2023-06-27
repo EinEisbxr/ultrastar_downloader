@@ -1,7 +1,8 @@
 import os
+from threading import *
 
 
-def start_checker(FOLDER_PATH):
+def run_checker(FOLDER_PATH):
     missing = []
     for filename in os.listdir(FOLDER_PATH):
         missing = get_artist_from_file(FOLDER_PATH, filename, missing)
@@ -63,9 +64,3 @@ def move_files(missing, FOLDER_PATH):
     
     for entry in missing:
         os.replace(FOLDER_PATH + "/" + entry, FOLDER_PATH + "/NoYoutubeLink/" + entry)
-
-      
-
-FOLDER_PATH = "C:\Texte"
-
-start_checker(FOLDER_PATH)
