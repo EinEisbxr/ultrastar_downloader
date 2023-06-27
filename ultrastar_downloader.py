@@ -2,37 +2,8 @@ import os
 from pytube import *
 from moviepy.editor import *
 import unicodedata
-import requests
-from threading import *
-from time import *
+from youtubesearchpython import VideosSearch
 
-
-def download_youtube_video(link, FOLDER_PATH, file_path, link_picture):
-    print("downloading video!")
-    #download from YT
-    print(link)
-    yt = YouTube(link)
-    yt.streams.get_highest_resolution().download(FOLDER_PATH)
-
-
-    title = yt.title
-    print("download completed: " + title)
-
-    if link_picture != 1:
-        try:
-            response = requests.get(link_picture)
-
-            if response.status_code == 200:
-                with open(FOLDER_PATH + "/" + title + ".jpg", 'wb') as file:
-                    file.write(response.content)
-                print("Image downloaded successfully as", FOLDER_PATH + "/" + title + ".jpg")
-            else:
-                print("Failed to download the image")
-
-        except:
-            print("Website not reachable")
-
-    rename_file_and_add_line(title, file_path, FOLDER_PATH)
 
 
 def delete_lines_with_prefix(file_path, prefix_list):
@@ -48,36 +19,66 @@ def delete_lines_with_prefix(file_path, prefix_list):
     return
 
 
+def get_link_to_youtube(search_query, song_length):
+    try:
+        videosSearch = VideosSearch(search_query, limit = 5)
+        result = videosSearch.result()
+
+        link = result['result'][0]['link']
+        duration = result['result'][0]['duration']
+        print(duration)
+
+        x = duration.find(":")
+
+        x2 = x + 1
+
+        time = float(duration[:x]) * 60 + float(duration[x2:])
+        print(time)
+
+        time2 = song_length * 60
+
+        if time > time2:
+            link = result['result'][1]['link']
+
+
+        return link
+
+    except Exception as e:
+        print('An error occurred:', str(e))
+        return None
+
+
 def get_title_artist_from_file(FOLDER_PATH, prefix_list):
     global x
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
-            
+            x = 1
             with open(file_path, 'r') as file:
                 lines = file.readlines()
             
             for line in lines:
-                if line.startswith("#VIDEO"):
-                    x1 = line.find("co=")
-                    if x1 >= 1:
-                        x2 = line.find(".jpg")
-                        link_picture = line[x1+3:x2+4]
-                        print(link_picture)
-                        if not link_picture.startswith("https://"):
-                            link_picture = "https://" + link_picture
-                            print(link_picture)
-                    else:
-                        link_picture = 1
+                
+                if line.startswith('#ARTIST'):
+                    artist_line = line.strip().replace("#ARTIST:", "")
+                    print("found Artist: " + artist_line)
 
-                    x1 = 9
-                    x2 = line.find("co=") - 1
-                    if not x2 >= 1:
-                        x2 = len(line)
+                if line.startswith("#TITLE"):
+                    title_line = line.strip().replace("#TITLE:", "")
+                    print("found Title: " + title_line)
 
-                    link = "https://www.youtube.com/watch?v=" + line[x1:x2]
-                    
-            delete_lines_with_prefix(file_path, prefix_list)
+                if line.startswith('#GAP'):
+                    gap_line = line.strip().replace("#GAP:", "").replace(",", ".")
+
+                if line.startswith('#BPM'):
+                    bpm_line = line.strip().replace("#BPM:", "").replace(",", ".")
+
+                if len(lines) - x == 1:
+                    song_beats = line[2:6]
+                    print(song_beats)
+
+                x = x + 1
+
 
             while active_count() >= int(number_of_threads):
                 sleep(0.01)
@@ -85,19 +86,33 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
             x.start()
 
 
-def rename_file_and_add_line(title, file_path, FOLDER_PATH):
+
+            song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
+            print(song_length)
+
+            search_query = artist_line + " " + title_line
+            print("searching for: " + search_query)
+                    
+            delete_lines_with_prefix(file_path, prefix_list)
+            link = get_link_to_youtube(search_query, song_length)
+            rename_file_and_add_line(link.replace("https://www.youtube.com/watch?", ""), file_path, filename, FOLDER_PATH)
+            
+
+def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
     print("Changing file")
     title = replace_non_ascii(title)
     with open(file_path, 'r') as old_file:
         old_content = old_file.read()
     
-        #if old_content[0].startswith("#VIDEO:"):
-        #    return
-    
+
     # Open the file in write mode
     with open(file_path, 'w') as new_file:
         # Write the new line followed by the existing content
-        new_file.write("#VIDEO:" + title + ".mp4" + '\n' + "#MP3:" + title + ".mp4" + '\n' + "#COVER:" + title + ".jpg" + '\n' + old_content)
+        new_file.write("#VIDEO:" + title + "\n" + old_content)
+
+    main_folder = FOLDER_PATH.replace("NoYoutubeLink", "")
+
+    os.replace(FOLDER_PATH + "/" + filename, main_folder + filename)
 
 
 
@@ -118,8 +133,8 @@ def replace_non_ascii(text):
     return ascii_text
 
 
+
 def run_ultrastar_downloader(FOLDER_PATH, prefix_list,number_of_threads2, search_results2):
     global number_of_threads, search_results
     search_results = search_results2
     number_of_threads = number_of_threads2
-    get_title_artist_from_file(FOLDER_PATH, prefix_list)
