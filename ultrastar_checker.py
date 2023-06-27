@@ -1,14 +1,17 @@
 import os
-from threading import *
 
-def get_title_artist_from_file(FOLDER_PATH, YOUTUBE):
+
+def start_checker(FOLDER_PATH):
+    missing = []
     for filename in os.listdir(FOLDER_PATH):
-        while active_count() >= 10:
-            x = Thread(target=get_artist_from_file, args=(FOLDER_PATH, YOUTUBE, filename))
-            x.start
+        missing = get_artist_from_file(FOLDER_PATH, filename, missing)
+
+    move_files(missing, FOLDER_PATH)
           
 
-def get_artist_from_file(FOLDER_PATH, YOUTUBE, filename):
+def get_artist_from_file(FOLDER_PATH, filename, missing):
+    link = 1
+    link_picture = 1
     if filename.endswith('.txt'):
         file_path = os.path.join(FOLDER_PATH, filename)
         
@@ -21,10 +24,8 @@ def get_artist_from_file(FOLDER_PATH, YOUTUBE, filename):
                 if x1 >= 1 and ".jpg" in line:
                     x2 = line.find(".jpg")
                     link_picture = line[x1+3:x2+4]
-                    print(link_picture)
                     if not link_picture.startswith("https://"):
                         link_picture = "https://" + link_picture
-                        print(link_picture)
                 else:
                     link_picture = 1
 
@@ -32,20 +33,39 @@ def get_artist_from_file(FOLDER_PATH, YOUTUBE, filename):
                 x2 = line.find("co=") - 1
                 if not x2 >= 1:
                     x2 = len(line)
-                    if not x2 >= 6:
+                    link = "https://www.youtube.com/watch?v=" + line[x1:x2]
+                    if not x2 > 8 or not "=" in line:
                         link = 1
-                      
-                link = "https://www.youtube.com/watch?v=" + line[x1:x2]
-
+                                  
         if link_picture == 1:
-            print(filename + ": has no link to a picture!"
+            print("WARNING: " + filename + ": has no link to a picture!")
 
         else:
             print(filename + ": foud link to picture: " + link_picture)
 
         if link == 1:
-            print(filename + ": has no YouTube link!")
+            print("ERROR: " + filename + ": has no YouTube link!")
+            missing.append(filename)
 
         else:
             print(filename + ": found YouTube link: " + link)
+
+    print(missing)
+    return missing
+
+
+def move_files(missing, FOLDER_PATH):
+    file_path = os.path.join(FOLDER_PATH, "NoYoutubeLink")
+    isExist = os.path.exists(file_path)
+    if not isExist:
+        os.makedirs(file_path)
+        print("Created directory: " + file_path)
+    
+    for entry in missing:
+        os.replace(FOLDER_PATH + "/" + entry, FOLDER_PATH + "/NoYoutubeLink/" + entry)
+
       
+
+FOLDER_PATH = "C:\Texte"
+
+start_checker(FOLDER_PATH)
