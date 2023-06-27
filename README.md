@@ -17,4 +17,4 @@ A tool to download the song and image data to an UltraStar Deluxe text file.
 
 2. It tries to download a picture to the video
   
-4. In the text file it adds the names of the downloaded files
+3. It renames the downloaded files and  it adds the names of them in the text file
