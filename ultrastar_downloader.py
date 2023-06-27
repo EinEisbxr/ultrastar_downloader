@@ -1,7 +1,4 @@
 import os
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from google.oauth2.credentials import Credentials
 from pytube import *
 from moviepy.editor import *
 import unicodedata
@@ -51,7 +48,7 @@ def delete_lines_with_prefix(file_path, prefix_list):
     return
 
 
-def get_title_artist_from_file(FOLDER_PATH, YOUTUBE, prefix_list):
+def get_title_artist_from_file(FOLDER_PATH, prefix_list):
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
@@ -118,21 +115,5 @@ def replace_non_ascii(text):
     return ascii_text
 
 
-#configure Threads
-t1 = Thread()
-
-
-
-# Set your API key
-API_KEY = 'AIzaSyBzx67b_K2Jzw85r18SPnddYoIAfSvKP_Q'
-
-#Select Folder
-FOLDER_PATH = "C:\Texte"
-
-prefix_list = ['#VIDEO', '#MP3', "#COVER"]
-
-# Build the YouTube API client
-YOUTUBE = build('youtube', 'v3', developerKey=API_KEY)
-
-#get search query out of file
-get_title_artist_from_file(FOLDER_PATH, YOUTUBE, prefix_list)
+def run_ultrastar_downloader(FOLDER_PATH, prefix_list):
+    get_title_artist_from_file(FOLDER_PATH, prefix_list)
