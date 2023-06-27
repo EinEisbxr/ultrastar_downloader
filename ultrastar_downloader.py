@@ -49,6 +49,7 @@ def get_link_to_youtube(search_query, song_length):
 
 
 def get_title_artist_from_file(FOLDER_PATH, prefix_list):
+    global x
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
@@ -79,6 +80,13 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                 x = x + 1
 
 
+            while active_count() >= int(number_of_threads):
+                sleep(0.01)
+            x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture))
+            x.start()
+
+
+
             song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
             print(song_length)
 
@@ -107,6 +115,8 @@ def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
     os.replace(FOLDER_PATH + "/" + filename, main_folder + filename)
 
 
+
+
 def replace_non_ascii(text):
     # Normalize the text into NFKD form
     normalized = unicodedata.normalize('NFKD', text)
@@ -123,5 +133,8 @@ def replace_non_ascii(text):
     return ascii_text
 
 
-def add_youtube_links(FOLDER_PATH, prefix_list):
-    get_title_artist_from_file(FOLDER_PATH, prefix_list)
+
+def run_ultrastar_downloader(FOLDER_PATH, prefix_list,number_of_threads2, search_results2):
+    global number_of_threads, search_results
+    search_results = search_results2
+    number_of_threads = number_of_threads2
