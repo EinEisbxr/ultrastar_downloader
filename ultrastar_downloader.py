@@ -49,6 +49,7 @@ def delete_lines_with_prefix(file_path, prefix_list):
 
 
 def get_title_artist_from_file(FOLDER_PATH, prefix_list):
+    global x
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
@@ -78,7 +79,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                     
             delete_lines_with_prefix(file_path, prefix_list)
 
-            while active_count() >= 16:
+            while active_count() >= int(number_of_threads):
                 sleep(0.01)
             x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture))
             x.start()
@@ -99,6 +100,8 @@ def rename_file_and_add_line(title, file_path, FOLDER_PATH):
         new_file.write("#VIDEO:" + title + ".mp4" + '\n' + "#MP3:" + title + ".mp4" + '\n' + "#COVER:" + title + ".jpg" + '\n' + old_content)
 
 
+
+
 def replace_non_ascii(text):
     # Normalize the text into NFKD form
     normalized = unicodedata.normalize('NFKD', text)
@@ -115,5 +118,8 @@ def replace_non_ascii(text):
     return ascii_text
 
 
-def run_ultrastar_downloader(FOLDER_PATH, prefix_list):
+def run_ultrastar_downloader(FOLDER_PATH, prefix_list,number_of_threads2, search_results2):
+    global number_of_threads, search_results
+    search_results = search_results2
+    number_of_threads = number_of_threads2
     get_title_artist_from_file(FOLDER_PATH, prefix_list)
