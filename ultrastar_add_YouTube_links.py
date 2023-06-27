@@ -94,10 +94,3 @@ def replace_non_ascii(text):
 
 def add_youtube_links(FOLDER_PATH, prefix_list):
     get_title_artist_from_file(FOLDER_PATH, prefix_list)
-#Select Folder
-FOLDER_PATH = "C:\Texte/NoYoutubeLink"
-
-
-
-#get search query out of file
-
