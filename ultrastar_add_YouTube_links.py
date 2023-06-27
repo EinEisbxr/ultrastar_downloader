@@ -15,6 +15,7 @@ def delete_lines_with_prefix(file_path, prefix_list):
         for line in lines:
             if not any(line.startswith(prefix) for prefix in prefix_list):
                 file.write(line)
+
     return
 
 
@@ -91,12 +92,12 @@ def replace_non_ascii(text):
     return ascii_text
 
 
-
+def add_youtube_links(FOLDER_PATH, prefix_list):
+    get_title_artist_from_file(FOLDER_PATH, prefix_list)
 #Select Folder
 FOLDER_PATH = "C:\Texte/NoYoutubeLink"
 
-prefix_list = ['#VIDEO']
 
 
 #get search query out of file
-get_title_artist_from_file(FOLDER_PATH, prefix_list)
+
