@@ -18,7 +18,7 @@ def get_artist_from_file(FOLDER_PATH, YOUTUBE, filename):
         for line in lines:
             if line.startswith("#VIDEO"):
                 x1 = line.find("co=")
-                if x1 >= 1:
+                if x1 >= 1 and ".jpg" in line:
                     x2 = line.find(".jpg")
                     link_picture = line[x1+3:x2+4]
                     print(link_picture)
