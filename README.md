@@ -10,3 +10,11 @@ A tool to download the song and image data to an UltraStar Deluxe text file.
 3. Run the programm and wait a bit
 
 4. Copy everything into your UltraStar Deluxe song folder
+
+
+# how it works:
+1. The programm extracts the link and downloads the video from Youtube
+
+2. It tries to download a picture to the video
+  
+4. In the text file it adds the names of the downloaded files
