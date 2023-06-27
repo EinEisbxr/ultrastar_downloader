@@ -93,7 +93,7 @@ def programm():
             start_button_label["text"] = "Download Videos and Images"
             
         if execute == 2:
-            run_ultrastar_downloader(FOLDER_PATH, prefix_list1, number_of_threads, search_results)
+            run_ultrastar_downloader(FOLDER_PATH, prefix_list1, number_of_threads)
             while active_count() > 1:
                 sleep(1)
                 #print(active_count())
