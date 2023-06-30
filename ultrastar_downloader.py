@@ -108,10 +108,11 @@ def replace_non_ascii(text):
     for c in normalized:
         if ord(c) < 128:
             ascii_text += c
+            
         else:
             ascii_text += ''
         
-    ascii_text = ascii_text.replace(".", "")
+    ascii_text = ascii_text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "")
     return ascii_text
 
 
