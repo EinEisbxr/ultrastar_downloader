@@ -72,6 +72,8 @@ def eisbxrerror(e):
     root.update_idletasks()
 
 def refresh_search_results():
+    count = 0
+    search_results.delete(0,tk.END)
     for file_name in os.listdir(FOLDER_PATH):
                 if file_name.endswith(".txt"):
                     search_results.insert(tk.END, f"{count+1}# {file_name}\n")
