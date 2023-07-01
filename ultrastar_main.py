@@ -71,6 +71,12 @@ def eisbxrerror(e):
     file_open_button['bg'] = "red"
     root.update_idletasks()
 
+def refresh_search_results():
+    for file_name in os.listdir(FOLDER_PATH):
+                if file_name.endswith(".txt"):
+                    search_results.insert(tk.END, f"{count+1}# {file_name}\n")
+                    count += 1
+                    #print("added")
 
 def changethreads():
     
@@ -148,6 +154,7 @@ def callback():
                     #print("added")
 
 def programm():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" or debug == 1:
         
@@ -175,6 +182,7 @@ def programm():
         
         
 def programm1():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" and progress >= 1 or debug == 1:
         
@@ -201,6 +209,7 @@ def programm1():
         
 
 def programm2():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" and progress >= 2 or debug == 1:
 
@@ -233,6 +242,7 @@ def programm2():
         
 
 def programmall():
+    refresh_search_results()
     global start, name, start_button, start_button_label, progress
     if start == 0 and name != "" or debug == 1:
        

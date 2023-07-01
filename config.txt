@@ -1,3 +1,4 @@
 DEFAULT_THREADS=16
-DEFAULT_DIRECTORY=D:/Downloads D/ultrastar downloader test
+DEFAULT_DIRECTORY=
 DEBUG=False
+

@@ -37,6 +37,9 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
                     link = "https://www.youtube.com/watch?v=" + line[x1:x2]
                     if not x2 > 8 or not "=" in line:
                         link = 1
+
+                else:
+                    link = "https://www.youtube.com/watch?v=" + line[x1:x2]
                                   
         if link_picture == 1:
             print("WARNING: " + filename + ": has no link to a picture!")
