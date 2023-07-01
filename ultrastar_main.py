@@ -71,6 +71,12 @@ def eisbxrerror(e):
     file_open_button['bg'] = "red"
     root.update_idletasks()
 
+def refresh_search_results():
+    for file_name in os.listdir(FOLDER_PATH):
+                if file_name.endswith(".txt"):
+                    search_results.insert(tk.END, f"{count+1}# {file_name}\n")
+                    count += 1
+                    #print("added")
 
 def changethreads():
     
@@ -148,6 +154,7 @@ def callback():
                     #print("added")
 
 def programm():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" or debug == 1:
         
@@ -175,6 +182,7 @@ def programm():
         
         
 def programm1():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" and progress >= 1 or debug == 1:
         
@@ -201,6 +209,7 @@ def programm1():
         
 
 def programm2():
+    refresh_search_results()
     global start, name, progress
     if start == 0 and name != "" and progress >= 2 or debug == 1:
 
@@ -233,6 +242,7 @@ def programm2():
         
 
 def programmall():
+    refresh_search_results()
     global start, name, start_button, start_button_label, progress
     if start == 0 and name != "" or debug == 1:
        
@@ -416,10 +426,10 @@ if found == False:
     start_button3 = tk.Button(root, text='START', command=programm2, font=('Arial', 30), bg="gray")
     start_button3.place(relx=20, rely=20, anchor=tk.S, y=-padding)
 
-    start_button_label_all = tk.Label(root, text='Execute All', font=('Arial', 37), bg="gray")
+    start_button_label_all = tk.Label(root, text='Execute All', font=('Arial', 39), bg="gray")
     start_button_label_all.place(relx=2/4, rely=0.88, anchor=tk.S, y=-padding*3)
 
-    start_button_all3 = tk.Button(root, text='START', command=programmall, font=('Arial', 40), bg="gray")
+    start_button_all3 = tk.Button(root, text='START', command=programmall, font=('Arial', 41), bg="gray")
     start_button_all3.place(relx=2/4, rely=0.98, anchor=tk.S, y=-padding)
                     
 with open("config.txt","r") as f:
