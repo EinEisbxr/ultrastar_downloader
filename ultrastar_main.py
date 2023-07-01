@@ -416,10 +416,10 @@ if found == False:
     start_button3 = tk.Button(root, text='START', command=programm2, font=('Arial', 30), bg="gray")
     start_button3.place(relx=20, rely=20, anchor=tk.S, y=-padding)
 
-    start_button_label_all = tk.Label(root, text='Execute All', font=('Arial', 37), bg="gray")
+    start_button_label_all = tk.Label(root, text='Execute All', font=('Arial', 39), bg="gray")
     start_button_label_all.place(relx=2/4, rely=0.88, anchor=tk.S, y=-padding*3)
 
-    start_button_all3 = tk.Button(root, text='START', command=programmall, font=('Arial', 40), bg="gray")
+    start_button_all3 = tk.Button(root, text='START', command=programmall, font=('Arial', 41), bg="gray")
     start_button_all3.place(relx=2/4, rely=0.98, anchor=tk.S, y=-padding)
                     
 with open("config.txt","r") as f:
