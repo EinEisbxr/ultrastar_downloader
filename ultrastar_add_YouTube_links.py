@@ -19,11 +19,36 @@ def delete_lines_with_prefix(file_path, prefix_list):
     return
 
 
-def get_link_to_youtube(search_query):
+def get_link_to_youtube(search_query1, search_query2, song_length):
     try:
-        videosSearch = VideosSearch(search_query, limit = 1)
+        videosSearch = VideosSearch(search_query1, limit = 5)
         result = videosSearch.result()
+        print(result)
+
         link = result['result'][0]['link']
+        duration = result['result'][0]['duration']
+        print(duration)
+
+        x = duration.find(":")
+
+        x2 = x + 1
+
+        time = float(duration[:x]) * 60 + float(duration[x2:])
+        print(time)
+
+        time2 = song_length * 60
+
+        if time > time2:
+            videosSearch = VideosSearch(search_query2, limit = 5)
+            result = videosSearch.result()
+
+            link = result['result'][0]['link']
+            duration = result['result'][0]['duration']
+
+            time = float(duration[:x]) * 60 + float(duration[x2:])
+
+            if time > time2:
+                link = result['result'][1]['link']
 
         return link
 
@@ -36,7 +61,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
-            
+            x = 1
             with open(file_path, 'r') as file:
                 lines = file.readlines()
             
@@ -49,13 +74,28 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                 if line.startswith("#TITLE"):
                     title_line = line.strip().replace("#TITLE:", "")
                     print("found Title: " + title_line)
-                
+
+                if line.startswith('#GAP'):
+                    gap_line = line.strip().replace("#GAP:", "").replace(",", ".")
+
+                if line.startswith('#BPM'):
+                    bpm_line = line.strip().replace("#BPM:", "").replace(",", ".")
+
+                if len(lines) - x == 1:
+                    song_beats = line[2:6]
+                    print(song_beats)
+
+                x = x + 1
+
+
+            song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
+            print(song_length)
 
             search_query = artist_line + " " + title_line
             print("searching for: " + search_query)
                     
             delete_lines_with_prefix(file_path, prefix_list)
-            link = get_link_to_youtube(search_query)
+            link = get_link_to_youtube(search_query, song_length)
             rename_file_and_add_line(link.replace("https://www.youtube.com/watch?", ""), file_path, filename, FOLDER_PATH)
             
 
