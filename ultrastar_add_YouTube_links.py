@@ -19,7 +19,7 @@ def delete_lines_with_prefix(file_path, prefix_list):
     return
 
 
-def get_link_to_youtube(search_query1, search_query2, song_length):
+def get_link_to_youtube(search_query1, song_length):
     try:
         videosSearch = VideosSearch(search_query1, limit = 5)
         result = videosSearch.result()
@@ -39,7 +39,7 @@ def get_link_to_youtube(search_query1, search_query2, song_length):
         time2 = song_length * 60
 
         if time > time2:
-            videosSearch = VideosSearch(search_query2, limit = 5)
+            videosSearch = VideosSearch(search_query1, limit = 5)
             result = videosSearch.result()
 
             link = result['result'][0]['link']
