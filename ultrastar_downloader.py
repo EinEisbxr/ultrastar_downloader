@@ -99,21 +99,9 @@ def rename_file_and_add_line(title, file_path, FOLDER_PATH):
         new_file.write("#VIDEO:" + title + ".mp4" + '\n' + "#MP3:" + title + ".mp4" + '\n' + "#COVER:" + title + ".jpg" + '\n' + old_content)
 
 
-def replace_non_ascii(text):
-    # Normalize the text into NFKD form
-    normalized = unicodedata.normalize('NFKD', text)
-
-    # Replace any non-ASCII characters with underscores
-    ascii_text = ''
-    for c in normalized:
-        if ord(c) < 128:
-            ascii_text += c
-            
-        else:
-            ascii_text += ''
-        
-    ascii_text = ascii_text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "")
-    return ascii_text
+def replace_non_ascii(text): 
+    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "")
+    return text
 
 
 def run_ultrastar_downloader(FOLDER_PATH, prefix_list, number_of_threads2):
