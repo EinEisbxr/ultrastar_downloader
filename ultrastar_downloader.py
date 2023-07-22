@@ -100,7 +100,7 @@ def rename_file_and_add_line(title, file_path, FOLDER_PATH):
 
 
 def replace_non_ascii(text): 
-    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "")
+    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "")
     return text
 
 
