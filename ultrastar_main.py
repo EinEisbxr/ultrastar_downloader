@@ -5,7 +5,7 @@ from ultrastar_add_YouTube_links import add_youtube_links
 import tkinter as tk
 from tkinter import filedialog as fd
 import os
-from threading import Thread
+from threading import Thread, active_count as threading_active_count
 from time import sleep
 
 # Initialize global variables
@@ -154,7 +154,7 @@ def programm2():
         except Exception as e:
             eisbxrerror(e)
             return
-        while active_count() > 1:
+        while threading_active_count() > 1:
             sleep(0.5)
         unbusy()
         start_button_label3.configure(fg_color="red", text="FINISHED")
@@ -190,7 +190,7 @@ def programmall():
         except Exception as e:
             eisbxrerror(e)
             return
-        while active_count() > 1:
+        while threading_active_count() > 1:
             sleep(0.5)
         start_button_label_all.configure(text="Finished", fg_color="red")
         root.update_idletasks()
@@ -235,17 +235,62 @@ thread_entry_label2.pack(side=tk.TOP, anchor=tk.NE, pady=padding, padx=padding)
 search_results = ctk.CTkTextbox(root, width=window_width / 2, height=window_height / 4, font=ctk.CTkFont(size=22), fg_color="grey", text_color="white")
 search_results.pack(side=tk.TOP, pady=padding)
 
-start_button_label = ctk.CTkButton(root, text="Run Checker", command=lambda: Thread(target=programm).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
-start_button_label.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+with open("config.txt","r") as f:
+            configlines = f.readlines()
 
-start_button_label2 = ctk.CTkButton(root, text="Add Youtube Links", command=lambda: Thread(target=programm1).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
-start_button_label2.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+found = False
 
-start_button_label3 = ctk.CTkButton(root, text="Download Videos and Images", command=lambda: Thread(target=programm2).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
-start_button_label3.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+for line in configlines:
+    
+    if line.startswith("DEBUG="):
+        line = line.replace("DEBUG=","")
+        line = line.replace("\n","")
+        if not line == "" and not line == "\n":
+            #print(bool(line))
+            global debug
+            if line == "True":
+                debug = 1
+                found = True
 
-start_button_label_all = ctk.CTkButton(root, text="Execute All", command=lambda: Thread(target=programmall).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
-start_button_label_all.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+                start_button_label = ctk.CTkButton(root, text="Run Checker", command=lambda: Thread(target=programm).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+                start_button_label.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+                start_button_label2 = ctk.CTkButton(root, text="Add Youtube Links", command=lambda: Thread(target=programm1).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+                start_button_label2.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+                start_button_label3 = ctk.CTkButton(root, text="Download Videos and Images", command=lambda: Thread(target=programm2).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+                start_button_label3.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+                start_button_label_all = ctk.CTkButton(root, text="Execute All", command=lambda: Thread(target=programmall).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+                start_button_label_all.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+                break
+
+if not found:
+    start_button_label = ctk.CTkButton(root, text="Run Checker", command=lambda: Thread(target=programm).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+    # start_button_label.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+    start_button_label2 = ctk.CTkButton(root, text="Add Youtube Links", command=lambda: Thread(target=programm1).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+    # start_button_label2.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+    start_button_label3 = ctk.CTkButton(root, text="Download Videos and Images", command=lambda: Thread(target=programm2).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+    # start_button_label3.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+    start_button_label_all = ctk.CTkButton(root, text="Execute All", command=lambda: Thread(target=programmall).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
+    start_button_label_all.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
+
+    with open("config.txt","r") as f:
+            configlines = f.readlines()
+
+for line in configlines:
+    
+    if line.startswith("DEFAULT_THREADS="):
+        line = line.replace("DEFAULT_THREADS=","")
+        line = line.replace("\n","")
+        if not line == "" and not line == "\n":
+            number_of_threads = int(line)
+            thread_entry.insert(tk.END,number_of_threads)
+        
 
 # Store buttons in a list
 buttons = [start_button_label, start_button_label2, start_button_label3, start_button_label_all]
