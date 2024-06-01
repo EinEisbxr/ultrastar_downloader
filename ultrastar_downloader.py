@@ -6,13 +6,15 @@ import requests
 from threading import *
 from time import *
 import shutil
+import re
+import unicodedata
 
 
 def download_youtube_video(link, FOLDER_PATH, file_path, link_picture):
     print("downloading video!")
     print(link)
     yt = YouTube(link)
-    downloaded_file_path = yt.streams.get_highest_resolution().download(FOLDER_PATH)
+    downloaded_file_path = yt.streams.get_highest_resolution().download(FOLDER_PATH, max_retries=10)
 
     title = replace_non_ascii(yt.title)
     print("download completed: " + title)
@@ -80,7 +82,12 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                     if not x2 >= 1:
                         x2 = len(line)
 
-                    link = "https://www.youtube.com/watch?v=" + line[x1:x2]
+                    video_id = line[x1:x2]
+                    if len(video_id) == 11:  # Check if the video_id length is correct
+                        link = "https://www.youtube.com/watch?v=" + video_id
+                    else:
+                        print(f"Invalid video ID: {video_id}")
+                        continue  # Skip this line if the video_id is not valid
                     
             delete_lines_with_prefix(file_path, prefix_list)
 
@@ -105,8 +112,10 @@ def rename_file_and_add_line(title, file_path, FOLDER_PATH):
         new_file.write("#VIDEO:" + title + ".mp4" + '\n' + "#MP3:" + title + ".mp4" + '\n' + "#COVER:" + title + ".jpg" + '\n' + old_content)
 
 
-def replace_non_ascii(text): 
-    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "").replace("(", "").replace(")", "").replace("!", "").replace("|", "").replace(" ", "_").replace('"', "").replace("=", "").replace("+", "").replace(",", "").replace(";", "").replace("[", "").replace("]", "").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("🇳🇱", "").replace("🇨🇭", "")
+def replace_non_ascii(text):
+    text = ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+    text = re.sub(r'[^a-zA-Z0-9_\s]', '', text)  # remove special characters
+    text = text.replace(' ', '_')  # replace spaces with underscore
     return text
 
 

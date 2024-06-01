@@ -3,7 +3,8 @@ from pytube import *
 from moviepy.editor import *
 import unicodedata
 from youtubesearchpython import VideosSearch
-
+import re
+import unicodedata
 
 
 def delete_lines_with_prefix(file_path, prefix_list):
@@ -116,8 +117,10 @@ def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
     os.replace(FOLDER_PATH + "/" + filename, main_folder + filename)
 
 
-def replace_non_ascii(text): 
-    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "").replace("(", "").replace(")", "").replace("!", "").replace("|", "").replace(" ", "_").replace('"', "").replace("=", "").replace("+", "").replace(",", "").replace(";", "").replace("[", "").replace("]", "").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("🇳🇱", "").replace("🇨🇭", "")
+def replace_non_ascii(text):
+    text = ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+    text = re.sub(r'[^a-zA-Z0-9_\s]', '', text)  # remove special characters
+    text = text.replace(' ', '_')  # replace spaces with underscore
     return text
 
 
