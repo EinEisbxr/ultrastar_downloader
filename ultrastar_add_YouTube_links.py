@@ -116,20 +116,9 @@ def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
     os.replace(FOLDER_PATH + "/" + filename, main_folder + filename)
 
 
-def replace_non_ascii(text):
-    # Normalize the text into NFKD form
-    normalized = unicodedata.normalize('NFKD', text)
-
-    # Replace any non-ASCII characters with underscores
-    ascii_text = ''
-    for c in normalized:
-        if ord(c) < 128:
-            ascii_text += c
-        else:
-            ascii_text += ''
-        
-    ascii_text = ascii_text.replace(".", "")
-    return ascii_text
+def replace_non_ascii(text): 
+    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "").replace("(", "").replace(")", "").replace("!", "").replace("|", "").replace(" ", "_").replace('"', "").replace("=", "").replace("+", "").replace(",", "").replace(";", "").replace("[", "").replace("]", "").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("🇳🇱", "").replace("🇨🇭", "")
+    return text
 
 
 def add_youtube_links(FOLDER_PATH, prefix_list):
