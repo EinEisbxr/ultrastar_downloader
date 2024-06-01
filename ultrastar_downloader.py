@@ -5,18 +5,24 @@ import unicodedata
 import requests
 from threading import *
 from time import *
+import shutil
 
 
 def download_youtube_video(link, FOLDER_PATH, file_path, link_picture):
     print("downloading video!")
-    #download from YT
     print(link)
     yt = YouTube(link)
-    yt.streams.get_highest_resolution().download(FOLDER_PATH)
+    downloaded_file_path = yt.streams.get_highest_resolution().download(FOLDER_PATH)
 
-
-    title = yt.title
+    title = replace_non_ascii(yt.title)
     print("download completed: " + title)
+
+    # Rename the downloaded file
+    new_file_path = os.path.join(FOLDER_PATH, title + '.mp4')
+    print("Original file path: ", downloaded_file_path)
+    if os.path.exists(downloaded_file_path):
+        print("Original file path: ", downloaded_file_path)  # Print the original file path
+        shutil.move(downloaded_file_path, new_file_path)
 
     if link_picture != 1:
         try:
@@ -100,7 +106,7 @@ def rename_file_and_add_line(title, file_path, FOLDER_PATH):
 
 
 def replace_non_ascii(text): 
-    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "")
+    text = text.replace("%", "").replace("&", "").replace("{", "").replace("\\", "").replace(":", "").replace("<", "").replace(">", "").replace("*", "").replace("?", "").replace("/", "").replace("$", "").replace("'", "").replace("(", "").replace(")", "").replace("!", "").replace("|", "").replace(" ", "_").replace('"', "").replace("=", "").replace("+", "").replace(",", "").replace(";", "").replace("[", "").replace("]", "").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss").replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("🇳🇱", "").replace("🇨🇭", "")
     return text
 
 
