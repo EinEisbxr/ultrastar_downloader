@@ -24,18 +24,18 @@ def get_link_to_youtube(search_query1, song_length):
     try:
         videosSearch = VideosSearch(search_query1, limit = 5)
         result = videosSearch.result()
-        print(result)
+        # print(result)
 
         link = result['result'][0]['link']
         duration = result['result'][0]['duration']
-        print(duration)
+        # print(duration)
 
         x = duration.find(":")
 
         x2 = x + 1
 
         time = float(duration[:x]) * 60 + float(duration[x2:])
-        print(time)
+        # print(time)
 
         time2 = song_length * 60
 
@@ -90,7 +90,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
 
 
             song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
-            print(song_length)
+            # print(song_length)
 
             search_query = artist_line + " " + title_line
             print("searching for: " + search_query)
