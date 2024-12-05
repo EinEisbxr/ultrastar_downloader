@@ -115,7 +115,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                     if not x2 >= 1:
                         x2 = len(line)
 
-                    video_id = line[x1:x2]
+                    video_id = line[x1:x2].strip()
                     if len(video_id) == 11:
                         link = "https://www.youtube.com/watch?v=" + video_id
                     else:

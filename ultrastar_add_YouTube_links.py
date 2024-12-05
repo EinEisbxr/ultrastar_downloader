@@ -101,8 +101,8 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
             
 
 def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
-    print("Changing file")
-    title = replace_non_ascii(title)
+    print("Changing file", title)
+    # title = replace_non_ascii(title)
     with open(file_path, 'r') as old_file:
         old_content = old_file.read()
     
