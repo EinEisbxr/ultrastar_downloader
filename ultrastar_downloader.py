@@ -101,10 +101,16 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                 lines = file.readlines()
             for line in lines:
                 if line.startswith("#VIDEO"):
+                    print(f"Processing line: {line}")
                     x1 = line.find("co=")
-                    if x1 >= 1:
-                        x2 = line.find(".jpg")
-                        link_picture = line[x1+3:x2+4]
+                    if x1 != -1:
+                        co_part = line[x1 + 3:].strip()
+                        comma_index = co_part.find(',')
+                        if comma_index != -1:
+                            link_picture = co_part[:comma_index].strip()
+                        else:
+                            link_picture = co_part
+
                         if not link_picture.startswith("https://"):
                             link_picture = "https://" + link_picture
                     else:
@@ -112,7 +118,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
 
                     x1 = 9
                     x2 = line.find("co=") - 1
-                    if not x2 >= 1:
+                    if x2 == -2:  # co= not found, set x2 to the end of the line
                         x2 = len(line)
 
                     video_id = line[x1:x2].strip()
@@ -135,6 +141,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                     while active_count() > int(number_of_threads):
                         sleep(0.01)
                     x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture, video_id))
+                    print(f"Link Picture: {link_picture}")
                     x.start()
 
 def rename_file_and_add_line(title, file_path, FOLDER_PATH, extension):

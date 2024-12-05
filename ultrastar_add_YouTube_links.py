@@ -63,11 +63,12 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
             x = 1
+            artist_line = title_line = gap_line = bpm_line = song_beats = None
+            co_part = None
             with open(file_path, 'r') as file:
                 lines = file.readlines()
             
             for line in lines:
-                
                 if line.startswith('#ARTIST'):
                     artist_line = line.strip().replace("#ARTIST:", "")
                     print("found Artist: " + artist_line)
@@ -82,38 +83,42 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                 if line.startswith('#BPM'):
                     bpm_line = line.strip().replace("#BPM:", "").replace(",", ".")
 
+                if line.startswith("#VIDEO"):
+                    x1 = line.find("co=")
+                    if x1 != -1:
+                        co_part = line[x1:].strip()
+
                 if len(lines) - x == 1:
                     song_beats = line[2:6]
                     print(song_beats)
 
                 x = x + 1
 
+            if not (artist_line and title_line and gap_line and bpm_line and song_beats):
+                print(f"Missing required tags in file: {filename}")
+                continue
 
             song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
-            # print(song_length)
-
             search_query = artist_line + " " + title_line
             print("searching for: " + search_query)
                     
             delete_lines_with_prefix(file_path, prefix_list)
             link = get_link_to_youtube(search_query, song_length)
-            rename_file_and_add_line(link.replace("https://www.youtube.com/watch?", ""), file_path, filename, FOLDER_PATH)
+            rename_file_and_add_line(link.replace("https://www.youtube.com/watch?", ""), file_path, filename, FOLDER_PATH, co_part)
             
 
-def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH):
+def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH, co_part):
     print("Changing file", title)
-    # title = replace_non_ascii(title)
     with open(file_path, 'r') as old_file:
         old_content = old_file.read()
     
-
-    # Open the file in write mode
     with open(file_path, 'w') as new_file:
-        # Write the new line followed by the existing content
-        new_file.write("#VIDEO:" + title + "\n" + old_content)
+        new_file.write("#VIDEO:" + title)
+        if co_part:
+            new_file.write(" " + co_part)
+        new_file.write("\n" + old_content)
 
     main_folder = FOLDER_PATH.replace("NoYoutubeLink", "")
-
     os.replace(FOLDER_PATH + "/" + filename, main_folder + filename)
 
 
