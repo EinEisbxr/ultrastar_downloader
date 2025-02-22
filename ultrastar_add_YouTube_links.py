@@ -43,7 +43,7 @@ def get_link_to_youtube(search_query, song_length):
     the one with the higher view count is chosen.
     """
     try:
-        videos_search = VideosSearch(search_query, limit=10)
+        videos_search = VideosSearch(search_query, limit=100)
         result = videos_search.result()
 
         # Ensure we have some results.
@@ -61,6 +61,7 @@ def get_link_to_youtube(search_query, song_length):
                 continue
 
             diff = abs(duration_seconds - song_length)
+            print(f"Video: {video.get('title')}, Duration: {duration_seconds}, Diff: {diff}, song_length: {song_length}")
             # Check if this video is a better candidate.
             if best_candidate is None or diff < best_diff:
                 best_candidate = video
@@ -128,15 +129,17 @@ def get_title_artist_from_file(folder_path, prefix_list):
                         co_part = line[x1:].strip()
                 # Assuming song_beats is on the penultimate line
                 if idx == len(lines) - 2:
-                    song_beats = line[2:6].strip()
+                    song_beats = line.split(" ")[1]
                     print(f"Found Song Beats: {song_beats}")
+                    last_line_beats = line.split(" ")[2]
+                    print(f"Found Last Line Beats: {last_line_beats}")
 
             if not (artist_line and title_line and gap_line and bpm_line and song_beats):
                 print(f"Missing required tags in file: {filename}")
                 continue
 
             try:
-                song_length = (float(song_beats) + float(gap_line)) / float(bpm_line) / 10
+                song_length = (((float(song_beats) + float(last_line_beats)) / (float(bpm_line) * 4)) * 60) + (float(gap_line) / 1000) 
             except Exception as e:
                 print(f"Error calculating song length for {filename}: {e}")
                 continue
