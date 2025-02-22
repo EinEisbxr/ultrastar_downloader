@@ -160,7 +160,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                         audio_id = match.group(1).strip()
                         audio_link = "https://www.youtube.com/watch?v=" + audio_id
                     else:
-                        audio_id = 1
+                        audio_link = 1
 
                     # Check if the video has already been processed
                     with lock:
