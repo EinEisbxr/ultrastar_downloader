@@ -25,7 +25,7 @@ def safe_move(src, dst, max_retries=10, delay=5):
     print(f"Failed to move file from {src} to {dst} after {max_retries} attempts")
     return False
 
-def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id):
+def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id, audio_link):
     print("Downloading video!")
     print(link)
     try:
@@ -75,13 +75,42 @@ def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id)
                 print("Failed to download the image")
         except Exception as e:
             print(f"Website not reachable: {e}")
+            
+    if audio_link != 1:
+        try:
+            # Step 1: Extract video info without downloading
+            with yt_dlp.YoutubeDL({'cachedir': False}) as ydl:
+                info_dict = ydl.extract_info(audio_link, download=False)
+                extension_audio = 'mp3'
 
-    rename_file_and_add_line(safe_title, file_path, FOLDER_PATH, extension)
+                desired_filename = f"{safe_title}.{extension_audio}"
+                desired_file_path = os.path.join(FOLDER_PATH, desired_filename)
+
+            # Step 4: Set ydl_opts with desired outtmpl
+            ydl_opts = {
+                'outtmpl': desired_file_path,
+                'format': 'bestaudio',
+                'cachedir': False,
+            }
+
+            # Download the video with the desired filename
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([audio_link])
+            print(f"Audio downloaded and saved as: {desired_filename}")
+        except Exception as e:
+            print(f"Error downloading audio: {e}")
+            with lock:
+                processed_videos.discard(video_id)
+            return
+    else:
+        extension_audio = extension
+
+    rename_file_and_add_line(safe_title, file_path, FOLDER_PATH, extension, extension_audio)
     with lock:
         processed_videos.discard(video_id)
 
 def delete_lines_with_prefix(file_path, prefix_list):
-    with open(file_path, 'r+') as file:
+    with open(file_path, 'r+', encoding='utf-8', errors='ignore') as file:
         lines = file.readlines()
         file.seek(0)
         file.truncate()
@@ -97,10 +126,10 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith('.txt'):
             file_path = os.path.join(FOLDER_PATH, filename)
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 lines = file.readlines()
             for line in lines:
-                if line.startswith("#VIDEO"):
+                if line.startswith("#VIDEO") and not line.startswith("#VIDEOGAP:"):
                     print(f"Processing line: {line}")
                     x1 = line.find("co=")
                     if x1 != -1:
@@ -116,17 +145,22 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                     else:
                         link_picture = 1
 
-                    x1 = 9
-                    x2 = line.find("co=") - 1
-                    if x2 == -2:  # co= not found, set x2 to the end of the line
-                        x2 = len(line)
-
-                    video_id = line[x1:x2].strip()
-                    if len(video_id) == 11:
+                    # Extract video_id using regex to capture the text after "v=" until a comma, space or line end.
+                    match = re.search(r'v=([^,\s\n]+)', line)
+                    if match:
+                        video_id = match.group(1).strip()
                         link = "https://www.youtube.com/watch?v=" + video_id
                     else:
-                        print(f"Invalid video ID: {video_id}")
+                        print(f"No valid video ID found in line: {line}")
                         continue
+                    
+                    # if there is an "a=" part in the line, extract the audio_id
+                    match = re.search(r'a=([^,\s\n]+)', line)
+                    if match:
+                        audio_id = match.group(1).strip()
+                        audio_link = "https://www.youtube.com/watch?v=" + audio_id
+                    else:
+                        audio_id = 1
 
                     # Check if the video has already been processed
                     with lock:
@@ -140,18 +174,18 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
 
                     while active_count() > int(number_of_threads):
                         sleep(0.01)
-                    x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture, video_id))
+                    x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture, video_id, audio_link))
                     print(f"Link Picture: {link_picture}")
                     x.start()
 
-def rename_file_and_add_line(title, file_path, FOLDER_PATH, extension):
+def rename_file_and_add_line(title, file_path, FOLDER_PATH, extension, extension_audio):
     print("Changing file")
-    with open(file_path, 'r') as old_file:
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as old_file:
         old_content = old_file.read()
-    with open(file_path, 'w') as new_file:
+    with open(file_path, 'w', encoding='utf-8') as new_file:
         new_file.write(
             "#VIDEO:" + title + f".{extension}" + '\n' +
-            "#MP3:" + title + f".{extension}" + '\n' +
+            "#MP3:" + title + f".{extension_audio}" + '\n' +
             "#COVER:" + title + ".jpg" + '\n' +
             old_content
         )

@@ -17,8 +17,8 @@ execute = 0
 number_of_threads = 10
 progress = 0
 
-prefix_list1 = ['#VIDEO', '#MP3', "#COVER"]
-prefix_list2 = ['#VIDEO']
+prefix_list1 = ['#VIDEO:', '#MP3:', "#COVER:"]
+prefix_list2 = ['#VIDEO:']
 
 # Functions
 
@@ -68,7 +68,7 @@ def changethreads():
             number_of_threads = 2
         thread_entry.delete(0, tk.END)
         thread_entry.insert(tk.END, number_of_threads)
-        with open("config.txt", "r") as f:
+        with open("config.txt", "r", encoding='utf-8', errors='ignore') as f:
             configlines = f.readlines()
         with open("config.txt", "w") as f:
             for line in configlines:
@@ -94,7 +94,7 @@ def callback():
             path_label.configure(text=name, fg_color="white")
             FOLDER_PATH = name
             FOLDER_PATH2 = f"{name}/NoYoutubeLink"
-            with open("config.txt", "r") as f:
+            with open("config.txt", "r", encoding='utf-8', errors='ignore') as f:
                 configlines = f.readlines()
             with open("config.txt", "w") as f:
                 for line in configlines:
@@ -113,11 +113,11 @@ def programm():
     global start, name, progress
     if start == 0 and name:
         busy(1)
-        try:
-            run_checker(FOLDER_PATH)
-        except Exception as e:
-            eisbxrerror(e)
-            return
+        # try:
+        run_checker(FOLDER_PATH)
+        # except Exception as e:
+        #     eisbxrerror(e)
+        #     return
         unbusy()
         start_button_label.configure(fg_color="red", text="FINISHED")
         root.update_idletasks()
@@ -171,11 +171,11 @@ def programmall():
         busy(3)
         start_button_label_all.configure(text="Running Checker")
         root.update_idletasks()
-        try:
-            run_checker(FOLDER_PATH)
-        except Exception as e:
-            eisbxrerror(e)
-            return
+        # try:
+        run_checker(FOLDER_PATH)
+        # except Exception as e:
+        #     eisbxrerror(e)
+        #     return
         start_button_label_all.configure(text="Adding Youtube Links")
         root.update_idletasks()
         try:
@@ -235,7 +235,7 @@ thread_entry_label2.pack(side=tk.TOP, anchor=tk.NE, pady=padding, padx=padding)
 search_results = ctk.CTkTextbox(root, width=window_width / 2, height=window_height / 4, font=ctk.CTkFont(size=22), fg_color="grey", text_color="white")
 search_results.pack(side=tk.TOP, pady=padding)
 
-with open("config.txt","r") as f:
+with open("config.txt","r", encoding='utf-8', errors='ignore') as f:
             configlines = f.readlines()
 
 found = False
@@ -279,7 +279,7 @@ if not found:
     start_button_label_all = ctk.CTkButton(root, text="Execute All", command=lambda: Thread(target=programmall).start(), font=ctk.CTkFont(size=30), fg_color="white", text_color="black")
     start_button_label_all.pack(side=tk.TOP, pady=padding, padx=(window_width / 4, window_width / 4))
 
-    with open("config.txt","r") as f:
+    with open("config.txt","r", encoding='utf-8', errors='ignore') as f:
             configlines = f.readlines()
 
 for line in configlines:

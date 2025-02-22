@@ -16,11 +16,11 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
     if filename.endswith('.txt'):
         file_path = os.path.join(FOLDER_PATH, filename)
 
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
             lines = file.readlines()
 
         for line in lines:
-            if line.startswith("#VIDEO"):
+            if line.startswith("#VIDEO") and not line.startswith("#VIDEOGAP:"):
                 content = line[len("#VIDEO:"):].strip()
                 co_index = content.find("co=")
 

@@ -8,7 +8,7 @@ import unicodedata
 
 
 def delete_lines_with_prefix(file_path, prefix_list):
-    with open(file_path, 'r+') as file:
+    with open(file_path, 'r+', encoding='utf-8', errors='ignore') as file:
         lines = file.readlines()
         file.seek(0)
         file.truncate()
@@ -65,7 +65,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
             x = 1
             artist_line = title_line = gap_line = bpm_line = song_beats = None
             co_part = None
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 lines = file.readlines()
             
             for line in lines:
@@ -83,7 +83,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                 if line.startswith('#BPM'):
                     bpm_line = line.strip().replace("#BPM:", "").replace(",", ".")
 
-                if line.startswith("#VIDEO"):
+                if line.startswith("#VIDEO") and not line.startswith("#VIDEOGAP:"):
                     x1 = line.find("co=")
                     if x1 != -1:
                         co_part = line[x1:].strip()
@@ -109,7 +109,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
 
 def rename_file_and_add_line(title, file_path, filename, FOLDER_PATH, co_part):
     print("Changing file", title)
-    with open(file_path, 'r') as old_file:
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as old_file:
         old_content = old_file.read()
     
     with open(file_path, 'w') as new_file:
