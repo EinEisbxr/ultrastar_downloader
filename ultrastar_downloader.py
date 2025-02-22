@@ -75,6 +75,24 @@ def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id,
                 print("Failed to download the image")
         except Exception as e:
             print(f"Website not reachable: {e}")
+    else:
+        # Use yt thumbnail if no custom image is provided
+        image_filename = f"{safe_title}.jpg"
+        thumbnail_url = info_dict.get('thumbnail', '')
+        if thumbnail_url:
+            try:
+                headers = {'User-Agent': 'Mozilla/5.0'}
+                response = requests.get(thumbnail_url, headers=headers)
+                if response.status_code == 200:
+                    with open(os.path.join(FOLDER_PATH, image_filename), 'wb') as file:
+                        file.write(response.content)
+                    print("Thumbnail downloaded successfully as", image_filename)
+                else:
+                    print("Failed to download the thumbnail")
+            except Exception as e:
+                print(f"Website not reachable: {e}")
+        else:
+            print("No thumbnail found")
             
     if audio_link != 1:
         try:
