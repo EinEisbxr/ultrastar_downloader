@@ -147,18 +147,22 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
                         link_picture = 1
 
                     # Extract video_id using regex to capture the text after "v=" until a comma, space or line end.
-                    match = re.search(r'v=([^,\s\n]+)', line)
-                    if match:
-                        video_id = match.group(1).strip()
+                    match_v = re.search(r'v=([^,\s\n]+)', line)
+                    match_a = re.search(r'a=([^,\s\n]+)', line)
+                    
+                    if match_v:
+                        video_id = match_v.group(1).strip()
+                        link = "https://www.youtube.com/watch?v=" + video_id
+                    elif match_a:
+                        video_id = match_a.group(1).strip()
                         link = "https://www.youtube.com/watch?v=" + video_id
                     else:
                         print(f"No valid video ID found in line: {line}")
                         continue
                     
                     # if there is an "a=" part in the line, extract the audio_id
-                    match = re.search(r'a=([^,\s\n]+)', line)
-                    if match:
-                        audio_id = match.group(1).strip()
+                    if match_a:
+                        audio_id = match_a.group(1).strip()
                         audio_link = "https://www.youtube.com/watch?v=" + audio_id
                     else:
                         audio_link = 1

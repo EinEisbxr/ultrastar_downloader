@@ -61,7 +61,7 @@ def get_link_to_youtube(search_query, song_length):
                 continue
 
             diff = abs(duration_seconds - song_length)
-            print(f"Video: {video.get('title')}, Duration: {duration_seconds}, Diff: {diff}, song_length: {song_length}")
+            # print(f"Video: {video.get('title')}, Duration: {duration_seconds}, Diff: {diff}, song_length: {song_length}")
             # Check if this video is a better candidate.
             if best_candidate is None or diff < best_diff:
                 best_candidate = video

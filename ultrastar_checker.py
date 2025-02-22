@@ -40,10 +40,15 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
                     video_part = content
                     link_picture = 1
 
-                # Extract video ID using regex.
-                match = re.search(r'v=([^,\s\n]+)', content)
-                if match:
-                    video_id = match.group(1).strip()
+                # Extract video ID and audio ID using regex to capture the text after "v=" or "a=" until a comma, space or line end.	
+                match_v = re.search(r'v=([^,\s\n]+)', content)
+                match_a = re.search(r'a=([^,\s\n]+)', content)
+                if match_v or match_a:
+                    if match_v:
+                        video_id = match_v.group(1).strip()
+                    else:
+                        video_id = match_a.group(1).strip()
+                        
                     link = "https://www.youtube.com/watch?v=" + video_id
                     found_youtube = True
                     # Validate the YouTube link.
