@@ -1,6 +1,7 @@
 import os
+import re
+import requests
 from threading import *
-
 
 def run_checker(FOLDER_PATH):
     missing = []
@@ -8,11 +9,11 @@ def run_checker(FOLDER_PATH):
         missing = get_artist_from_file(FOLDER_PATH, filename, missing)
 
     move_files(missing, FOLDER_PATH)
-          
+
 
 def get_artist_from_file(FOLDER_PATH, filename, missing):
-    link = 1
     link_picture = 1
+    found_youtube = False
     if filename.endswith('.txt'):
         file_path = os.path.join(FOLDER_PATH, filename)
 
@@ -22,13 +23,12 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
         for line in lines:
             if line.startswith("#VIDEO") and not line.startswith("#VIDEOGAP:"):
                 content = line[len("#VIDEO:"):].strip()
+                # Extract the picture link using "co=" parameter.
                 co_index = content.find("co=")
-
                 if co_index != -1:
                     video_part = content[:co_index].strip()
                     co_part = content[co_index + 3:].strip()
                     comma_index = co_part.find(',')
-
                     if comma_index != -1:
                         link_picture = co_part[:comma_index].strip()
                     else:
@@ -40,27 +40,42 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
                     video_part = content
                     link_picture = 1
 
-                comma_index = video_part.find(',')
-                if comma_index != -1:
-                    video_id = video_part[:comma_index].strip()
-                else:
-                    video_id = video_part
-
-                if video_id:
+                # Extract video ID using regex.
+                match = re.search(r'v=([^,\s\n]+)', content)
+                if match:
+                    video_id = match.group(1).strip()
                     link = "https://www.youtube.com/watch?v=" + video_id
+                    found_youtube = True
+                    # Validate the YouTube link.
+                    try:
+                        r = requests.get(link, timeout=5)
+                        # print(r.text[1000:10000])
+                        if r.status_code != 200 or "https://www.youtube.com/img/desktop/unavailable/" in r.text:
+                            print("ERROR: " + filename + ": YouTube video no longer exists!")
+                            if filename not in missing:
+                                missing.append(filename)
+                        else:
+                            print(filename + ": found YouTube link: " + link)
+                    except Exception as e:
+                        print("ERROR: " + filename + ": exception checking YouTube link: " + str(e))
+                        if filename not in missing:
+                            missing.append(filename)
                 else:
-                    link = 1
+                    print("ERROR: " + filename + ": has no YouTube link!")
+                    if filename not in missing:
+                        missing.append(filename)
 
+                # Report picture link status.
                 if link_picture == 1:
                     print("WARNING: " + filename + ": has no link to a picture!")
                 else:
                     print(filename + ": found link to picture: " + link_picture)
 
-                if link == 1:
-                    print("ERROR: " + filename + ": has no YouTube link!")
-                    missing.append(filename)
-                else:
-                    print(filename + ": found YouTube link: " + link)
+        # If no YouTube link was found in any "#VIDEO:" line, mark file as missing.
+        if not found_youtube:
+            print("ERROR: " + filename + ": no YouTube link found in file!")
+            if filename not in missing:
+                missing.append(filename)
 
     print(missing)
     return missing
@@ -74,4 +89,4 @@ def move_files(missing, FOLDER_PATH):
         print("Created directory: " + file_path)
     
     for entry in missing:
-        os.replace(FOLDER_PATH + "/" + entry, FOLDER_PATH + "/NoYoutubeLink/" + entry)
+        os.replace(os.path.join(FOLDER_PATH, entry), os.path.join(FOLDER_PATH, "NoYoutubeLink", entry))

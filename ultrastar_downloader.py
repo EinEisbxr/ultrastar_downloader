@@ -108,6 +108,7 @@ def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id,
     rename_file_and_add_line(safe_title, file_path, FOLDER_PATH, extension, extension_audio)
     with lock:
         processed_videos.discard(video_id)
+        print(f"Removed video {video_id} from processed_videos set")
 
 def delete_lines_with_prefix(file_path, prefix_list):
     with open(file_path, 'r+', encoding='utf-8', errors='ignore') as file:
@@ -174,7 +175,7 @@ def get_title_artist_from_file(FOLDER_PATH, prefix_list):
 
                     while active_count() > int(number_of_threads):
                         sleep(0.01)
-                    x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture, video_id, audio_link))
+                    x = Thread(target=download_youtube_video, args=(link, FOLDER_PATH, file_path, link_picture, video_id, audio_link), daemon=True)
                     print(f"Link Picture: {link_picture}")
                     x.start()
 

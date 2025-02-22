@@ -190,7 +190,7 @@ def programmall():
         except Exception as e:
             eisbxrerror(e)
             return
-        while threading_active_count() > 1:
+        while threading_active_count() > 2:
             sleep(0.5)
         start_button_label_all.configure(text="Finished", fg_color="red")
         root.update_idletasks()
@@ -236,12 +236,11 @@ search_results = ctk.CTkTextbox(root, width=window_width / 2, height=window_heig
 search_results.pack(side=tk.TOP, pady=padding)
 
 with open("config.txt","r", encoding='utf-8', errors='ignore') as f:
-            configlines = f.readlines()
+    configlines = f.readlines()
 
 found = False
 
 for line in configlines:
-    
     if line.startswith("DEBUG="):
         line = line.replace("DEBUG=","")
         line = line.replace("\n","")
