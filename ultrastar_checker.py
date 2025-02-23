@@ -3,11 +3,11 @@ import re
 import requests
 from threading import Thread, Lock, Semaphore
 
-def run_checker(FOLDER_PATH):
+def run_checker(FOLDER_PATH, number_of_threads=25):
     missing = []
     lock = Lock()
     threads = []
-    semaphore = Semaphore(25)  # Limit to 10 concurrent threads
+    semaphore = Semaphore(int(number_of_threads))
 
     def thread_target(FOLDER_PATH, filename, missing, lock):
         with semaphore:

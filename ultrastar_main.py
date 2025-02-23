@@ -62,8 +62,8 @@ def changethreads():
     if number_of_threads.isdigit():
         number_of_threads = int(number_of_threads)
         thread_entry_label2.configure(text="")
-        if number_of_threads > 16:
-            number_of_threads = 16
+        if number_of_threads > 30:
+            number_of_threads = 30
         elif number_of_threads < 2:
             number_of_threads = 2
         thread_entry.delete(0, tk.END)
@@ -172,7 +172,7 @@ def programmall():
         start_button_label_all.configure(text="Running Checker")
         root.update_idletasks()
         # try:
-        run_checker(FOLDER_PATH)
+        run_checker(FOLDER_PATH, number_of_threads)
         # except Exception as e:
         #     eisbxrerror(e)
         #     return
