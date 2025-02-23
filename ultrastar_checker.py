@@ -1,17 +1,30 @@
 import os
 import re
 import requests
-from threading import *
+from threading import Thread, Lock, Semaphore
 
 def run_checker(FOLDER_PATH):
     missing = []
+    lock = Lock()
+    threads = []
+    semaphore = Semaphore(25)  # Limit to 10 concurrent threads
+
+    def thread_target(FOLDER_PATH, filename, missing, lock):
+        with semaphore:
+            get_artist_from_file(FOLDER_PATH, filename, missing, lock)
+
     for filename in os.listdir(FOLDER_PATH):
-        missing = get_artist_from_file(FOLDER_PATH, filename, missing)
+        thread = Thread(target=thread_target, args=(FOLDER_PATH, filename, missing, lock))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
 
     move_files(missing, FOLDER_PATH)
 
 
-def get_artist_from_file(FOLDER_PATH, filename, missing):
+def get_artist_from_file(FOLDER_PATH, filename, missing, lock):
     link_picture = 1
     found_youtube = False
     if filename.endswith('.txt'):
@@ -23,9 +36,8 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
         for line in lines:
             if line.startswith("#VIDEO") and not line.startswith("#VIDEOGAP:"):
                 content = line[len("#VIDEO:"):].strip()
-                # Extract the picture link using "co=" parameter.
                 co_index = content.find("co=")
-                if co_index != -1:
+                if (co_index != -1):
                     video_part = content[:co_index].strip()
                     co_part = content[co_index + 3:].strip()
                     comma_index = co_part.find(',')
@@ -40,7 +52,6 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
                     video_part = content
                     link_picture = 1
 
-                # Extract video ID and audio ID using regex to capture the text after "v=" or "a=" until a comma, space or line end.	
                 match_v = re.search(r'v=([^,\s\n]+)', content)
                 match_a = re.search(r'a=([^,\s\n]+)', content)
                 if match_v or match_a:
@@ -51,36 +62,36 @@ def get_artist_from_file(FOLDER_PATH, filename, missing):
                         
                     link = "https://www.youtube.com/watch?v=" + video_id
                     found_youtube = True
-                    # Validate the YouTube link.
                     try:
                         r = requests.get(link, timeout=5)
-                        # print(r.text[1000:10000])
                         if r.status_code != 200 or "https://www.youtube.com/img/desktop/unavailable/" in r.text:
                             print("ERROR: " + filename + ": YouTube video no longer exists!")
-                            if filename not in missing:
-                                missing.append(filename)
+                            with lock:
+                                if filename not in missing:
+                                    missing.append(filename)
                         else:
                             print(filename + ": found YouTube link: " + link)
                     except Exception as e:
                         print("ERROR: " + filename + ": exception checking YouTube link: " + str(e))
-                        if filename not in missing:
-                            missing.append(filename)
+                        with lock:
+                            if filename not in missing:
+                                missing.append(filename)
                 else:
                     print("ERROR: " + filename + ": has no YouTube link!")
-                    if filename not in missing:
-                        missing.append(filename)
+                    with lock:
+                        if filename not in missing:
+                            missing.append(filename)
 
-                # Report picture link status.
                 if link_picture == 1:
                     print("WARNING: " + filename + ": has no link to a picture!")
                 else:
                     print(filename + ": found link to picture: " + link_picture)
 
-        # If no YouTube link was found in any "#VIDEO:" line, mark file as missing.
         if not found_youtube:
             print("ERROR: " + filename + ": no YouTube link found in file!")
-            if filename not in missing:
-                missing.append(filename)
+            with lock:
+                if filename not in missing:
+                    missing.append(filename)
 
     print(missing)
     return missing
