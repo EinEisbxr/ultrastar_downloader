@@ -8,6 +8,8 @@ from time import sleep
 import re
 import unicodedata
 import yt_dlp
+from PIL import Image
+from io import BytesIO
 
 def safe_move(src, dst, max_retries=10, delay=5):
     for attempt in range(max_retries):
@@ -72,27 +74,11 @@ def download_youtube_video(link, FOLDER_PATH, file_path, link_picture, video_id,
                     file.write(response.content)
                 print("Image downloaded successfully as", image_filename)
             else:
-                print("Failed to download the image")
+                get_youtube_thumbnail(safe_title, info_dict, FOLDER_PATH)
         except Exception as e:
-            print(f"Website not reachable: {e}")
+            get_youtube_thumbnail(safe_title, info_dict, FOLDER_PATH)
     else:
-        # Use yt thumbnail if no custom image is provided
-        image_filename = f"{safe_title}.jpg"
-        thumbnail_url = info_dict.get('thumbnail', '')
-        if thumbnail_url:
-            try:
-                headers = {'User-Agent': 'Mozilla/5.0'}
-                response = requests.get(thumbnail_url, headers=headers)
-                if response.status_code == 200:
-                    with open(os.path.join(FOLDER_PATH, image_filename), 'wb') as file:
-                        file.write(response.content)
-                    print("Thumbnail downloaded successfully as", image_filename)
-                else:
-                    print("Failed to download the thumbnail")
-            except Exception as e:
-                print(f"Website not reachable: {e}")
-        else:
-            print("No thumbnail found")
+        get_youtube_thumbnail(safe_title, info_dict, FOLDER_PATH)
             
     if audio_link != 1:
         try:
@@ -223,3 +209,30 @@ def run_ultrastar_downloader(FOLDER_PATH, prefix_list, number_of_threads2):
     global number_of_threads
     number_of_threads = number_of_threads2
     get_title_artist_from_file(FOLDER_PATH, prefix_list)
+    
+def get_youtube_thumbnail(safe_title, info_dict, FOLDER_PATH):
+    # Use yt thumbnail if no custom image is provided
+    image_filename = f"{safe_title}.jpg"
+    thumbnail_url = info_dict.get('thumbnail', '')
+    if thumbnail_url:
+        try:
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            response = requests.get(thumbnail_url, headers=headers)
+            if response.status_code == 200:
+                # Crop the thumbnail to a square
+                image = Image.open(BytesIO(response.content))
+                width, height = image.size
+                size = min(width, height)
+                left = (width - size) // 2
+                top = (height - size) // 2
+                right = (width + size) // 2
+                bottom = (height + size) // 2
+                cropped_image = image.crop((left, top, right, bottom))
+                cropped_image.save(os.path.join(FOLDER_PATH, image_filename))
+                print("Thumbnail downloaded and cropped successfully as", image_filename)
+            else:
+                print("Failed to download the thumbnail")
+        except Exception as e:
+            print(f"Website not reachable: {e}")
+    else:
+        print("No thumbnail found")
